@@ -1,0 +1,143 @@
+<?php
+session_start();
+include("verifica.php");
+include("conexao.php");
+
+// Garante que é admin
+verifica_tipo('A');
+
+if(!isset($_GET['id'])){
+    die("Cliente não especificado.");
+}
+
+$IDcliente = intval($_GET['id']);
+
+// Inicia transação para garantir consistência
+mysqli_begin_transaction($id);
+
+try {
+
+    // Deleta todas as solicitações do cliente
+    mysqli_query($id, "DELETE FROM solicitacoes WHERE IDcliente=$IDcliente");
+
+    // Deleta o usuário vinculado ao cliente (tabela usuarios)
+    mysqli_query($id, "DELETE FROM usuarios WHERE IDusuario=$IDcliente");
+
+    // Deleta o cliente
+    if(mysqli_query($id, "DELETE FROM cliente WHERE IDcliente=$IDcliente")){
+
+        mysqli_commit($id);
+        header("Location: clientes_lista.php");
+        exit;
+
+    } else {
+        throw new Exception("Erro ao excluir cliente: " . mysqli_error($id));
+    }
+
+} catch(Exception $e){
+
+    mysqli_rollback($id);
+    $mensagem = $e->getMessage();
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Excluir Cliente - Servigera</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { 
+            height: 100%; 
+            font-family: Arial, sans-serif; 
+            background: #e60000 url("../fundo.png") no-repeat center center fixed; 
+            background-size: cover; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        header { 
+            background-color: #900000; 
+            color: #fff; 
+            padding: 20px; 
+            text-align: center; 
+            position: relative; 
+        }
+        header h1 { margin: 0; }
+        header nav { position: absolute; top: 20px; right: 20px; }
+        header nav a.voltar, header nav a.logout { 
+            color: #fff; 
+            background-color: #cc0000; 
+            padding: 8px 15px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            margin-left: 5px; 
+        }
+        header nav a.voltar:hover, header nav a.logout:hover { 
+            background-color: #ff3333; 
+        }
+        main { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px; 
+        }
+        .container { 
+            background-color: #fff; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+            max-width: 500px; 
+            width: 100%; 
+            text-align: center; 
+        }
+        .mensagem { 
+            font-size: 18px; 
+            color: red; 
+            margin-bottom: 20px; 
+        }
+        a.btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background-color: #e60000; 
+            color: #fff; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            transition: 0.3s; 
+        }
+        a.btn:hover { opacity: 0.8; }
+        footer { 
+            background-color: #900000; 
+            color: #fff; 
+            padding: 15px; 
+            text-align: center; 
+            margin-top: auto; 
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Excluir Cliente</h1>
+    <nav>
+        <a class="voltar" href="clientes_lista.php">Voltar</a>
+        <a class="logout" href="logout.php">Sair</a>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <?php if(isset($mensagem)) { ?>
+        <div class="mensagem"><?php echo $mensagem; ?></div>
+        <a class="btn" href="clientes_lista.php">Voltar à Lista de Clientes</a>
+        <?php } ?>
+    </div>
+</main>
+
+<footer>
+    &copy; <?php echo date("Y"); ?> Servigera - Todos os direitos reservados
+</footer>
+</body>
+</html>
