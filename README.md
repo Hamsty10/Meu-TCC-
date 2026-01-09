@@ -5,7 +5,7 @@ Este é o meu projeto de TCC. O **ServiGera** é uma plataforma desenvolvida par
 ## 🚀 Tecnologias Utilizadas
 * **Linguagem:** PHP 
 * **Banco de Dados:** MySQL
-* **Interface:** HTML5, CSS3
+* **Interface:** HTML5, CSS3, JAVASCRIPT
 * **Versão do PHP recomendada:** 7.4 ou superior
 
 ## 📂 Funcionalidades
